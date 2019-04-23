@@ -1,0 +1,9 @@
+.idea/
+bin/
+target/
+*.iml
+elc.log
+generator/
+node_modules/
+.project
+*.txt
