@@ -7,70 +7,71 @@ import java.util.stream.Collectors;
 
 public class Check {
 
-	public static ConcurrentHashMap<String,Doc> STAND_DOC_MAP = new ConcurrentHashMap<String,Doc>(30000);
-	public static ConcurrentSkipListSet<Doc> DOC_SET = new ConcurrentSkipListSet<Doc>();
-	// you must rewrite this function
+	private Map<Character,List<Integer>> docMap = new HashMap<>(50000);
+	private short[] docLArray = new short[100000];
+	AtomicInteger count = new AtomicInteger(0);
+	private Set<Character> docCharSet = new HashSet<>(1024);
+
 	public void init(Vector<String> docList) {
-		AtomicInteger docIndex = new AtomicInteger(0);
-		docList.parallelStream().forEach(currDoc ->{
-			Doc doc = new Doc(docIndex.addAndGet(1), currDoc.length());
-			DOC_SET.add(doc);
-			Map<String, Long> charMap = Arrays.asList(currDoc.trim().split("")).parallelStream().collect(Collectors.groupingBy(str -> str, Collectors.counting()));
-			doc.setCharCount(charMap);
+		for (int i = 0; i < docList.size(); i++) {
+			count.set(0);
+			System.out.println("hand:"+i);
 
-		});
+			if(i == 3000){
+				System.out.println("run here");
+			}
+			try {
+				final int index = i;
+				String curr = docList.get(index);
 
+				char[] chars = curr.toCharArray();
+				for (int j = 0; j < chars.length; j++) {
+					char currC = chars[j];
+					if(docCharSet.add(currC)){
+						List<Integer> list = docMap.get(currC);
+						if(Objects.isNull(list)){
+							list = new LinkedList<>();
+							docMap.put(currC, list);
+						}
+						list.add(index);
+						count.incrementAndGet();
+					}
+				}
+				curr = null;
+				docLArray[index] = (short) Math.ceil(count.get()*0.6);
+				docCharSet.clear();
+				//docList.remove(i);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 
+		System.out.println(docMap);
 
 	}
 
 
-	// you must rewrite this function
-	// checking
-	// IN tiezi : doc string
-	// OUT : 1=>hit doc
-	//       0=>miss doc
 	public int check(char[] info, int len ) {
+		short[] rsArray = new short[1000000];
+		new String(info).chars().distinct().forEach(cx -> {
+			char currCx = (char)cx;
+			List<Integer> list = docMap.get(currCx);
+			if(Objects.nonNull(list)) {
+				list.forEach(docIndex -> {
+					rsArray[docIndex]++;
+				});
+			}
+		});
+		for (int i = 0; i < rsArray.length; i++) {
+			short hitLength = rsArray[i];
+			if(hitLength != 0  && docLArray[i]<=hitLength){
+				return 1;
+			}
+		}
 		return 0;
 	}
 
-	public static class Doc{
-		private int docId;
 
-		private int docLenth;
-
-		private Map<String,Long> charCount;
-
-		public Doc(int docId, int docLenth) {
-			this.docId = docId;
-			this.docLenth = docLenth;
-			this.charCount = charCount;
-		}
-
-		public int getDocId() {
-			return docId;
-		}
-
-		public void setDocId(int docId) {
-			this.docId = docId;
-		}
-
-		public int getDocLenth() {
-			return docLenth;
-		}
-
-		public void setDocLenth(int docLenth) {
-			this.docLenth = docLenth;
-		}
-
-		public Map<String, Long> getCharCount() {
-			return charCount;
-		}
-
-		public void setCharCount(Map<String, Long> charCount) {
-			this.charCount = charCount;
-		}
-	}
 
 }
 

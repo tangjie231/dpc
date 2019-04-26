@@ -21,7 +21,7 @@ public class MainFrame {
 	// output file check result
 	private static final String OUTPUT_FILE_MY_RESULT = ROOT_PATH+"output/my_result.txt";
 	// standard result file
-	private static final String STANDARD_FILE_STANDARD_RESULT = ROOT_PATH + "output/standard_result.txt";
+	private static final String STANDARD_FILE_STANDARD_RESULT = ROOT_PATH + "output/standard_result_bak.txt";
 	private static final byte[] standardResult = new byte[65536 * 10];
 	private static final byte[] userResult = new byte[65536 * 10]; 
 	
@@ -42,7 +42,7 @@ public class MainFrame {
 
 		//检测结果
 		String result = checkResult(totalCheckCount, totalTime.getValue());
-//		System.out.println(result);
+		System.out.println(result);
 	}
 	
 	private static Vector<String> readStandarddoc() {
@@ -79,34 +79,34 @@ public class MainFrame {
 	 * @return 检测结果:时间[空格]正确率
 	 */
 	private static String checkResult(int checkCount, long totalTime) {
-//		int standardCount = 0;
+		int standardCount = 0;
 //		// get standard result
-//		File standardResultFile = new File(STANDARD_FILE_STANDARD_RESULT);
-//		BufferedReader standardResultReader = null;
-//		try {
-//			standardResultReader = new BufferedReader(new FileReader(standardResultFile));
-//			String tmpReaderBuf = null;
-//			while ((tmpReaderBuf = standardResultReader.readLine()) != null) {
-//				//Integer tmpValue = Integer.parseInt(tmpReaderBuf);
-//				standardResult[standardCount] = Byte.parseByte(tmpReaderBuf);
-//				standardCount++;
-//			}
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		} finally {
-//			if (standardResultReader != null) {
-//				try {
-//					standardResultReader.close();
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		}
-//
-//		if (checkCount != standardCount) {
-//			String reStr = "check count :" + checkCount +"--standardCount:"+ standardCount ;
-//			return reStr;
-//		}
+		File standardResultFile = new File(STANDARD_FILE_STANDARD_RESULT);
+		BufferedReader standardResultReader = null;
+		try {
+			standardResultReader = new BufferedReader(new FileReader(standardResultFile));
+			String tmpReaderBuf = null;
+			while ((tmpReaderBuf = standardResultReader.readLine()) != null) {
+				//Integer tmpValue = Integer.parseInt(tmpReaderBuf);
+				standardResult[standardCount] = Byte.parseByte(tmpReaderBuf);
+				standardCount++;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (standardResultReader != null) {
+				try {
+					standardResultReader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		if (checkCount != standardCount) {
+			String reStr = "check count :" + checkCount +"--standardCount:"+ standardCount ;
+			return reStr;
+		}
 
 		// write result
 		File resultFile = new File(OUTPUT_FILE_MY_RESULT);
@@ -128,19 +128,18 @@ public class MainFrame {
 			}
 		}
 		// calculate correct rate
-//		int totalYes = 0;
-//		double correctRate = 0.0f;
-//		for (int i = 0; i < checkCount; i++) {
-//			if (userResult[i] == standardResult[i]) {
-//				totalYes++;
-//			}
-//		}
-//		if(checkCount > 0){
-//			correctRate = totalYes / checkCount;
-//		}
-//		// output
-//		return totalTime + " " + correctRate;
-		return null;
+		int totalYes = 0;
+		double correctRate = 0.0f;
+		for (int i = 0; i < checkCount; i++) {
+			if (userResult[i] == standardResult[i]) {
+				totalYes++;
+			}
+		}
+		if(checkCount > 0){
+			correctRate = totalYes / checkCount;
+		}
+		// output
+		return totalTime + " " + correctRate;
 	}
 	
 	
